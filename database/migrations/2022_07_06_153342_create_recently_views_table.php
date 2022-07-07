@@ -15,8 +15,8 @@ class CreateRecentlyViewsTable extends Migration
     {
         Schema::create('recently_views', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('viewer_id');
-            $table->unsignedBigInteger('viewed_id');
+            $table->unsignedInteger('viewer_id');
+            $table->unsignedInteger('viewed_id');
 
             $table->foreign('viewer_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('viewed_id')->references('id')->on('users')->onDelete('cascade');

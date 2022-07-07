@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\User;
+use App\Models\Profile;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
@@ -73,26 +74,25 @@ class RegisterController extends Controller
     }
     public function registerApi(Request $request) 
     { 
-        $validator = Validator::make($request->all(), [ 
-            'first_name' => 'required', 
-            'last_name' => 'required', 
-            'role' => 'required',
-            'email' => 'required|email', 
-            'password' => 'required', 
-            'confirm_password' => 'required|same:password', 
-        ]);
-        if ($validator->fails()) { 
-            return response()->json(['error'=>$validator->errors()], 401);            
-        }
-        $input = $request->all(); 
+        // $validator = Validator::make($request->all(), [ 
+        //     'first_name' => 'required', 
+        //     'last_name' => 'required', 
+        //     'email' => 'required|email', 
+        //     'password' => 'required', 
+        // ]);
+        // if ($validator->fails()) { 
+        //     return response()->json(['error'=>$validator->errors()], 401);            
+        // }
+        $input = $request->userData;
+        
         $input['password'] = bcrypt($input['password']); 
-        $user = User::create($input);
-        if($input['role']==1){
-            $user->assignRole('artist');
+        $user_id = User::insertGetId($input);
 
-        }elseif($input['role']==2){
-            $user->assignRole('customer');
-        }
+        $data=   array_merge($request->userProfile, ['user_id' => $user_id]);
+    
+        Profile::insertGetId($data);
+        $user = User::find($user_id);
+
         $success['token'] =  $user->createToken('MyApp')-> accessToken; 
         $success['first_name'] =  $user->first_name;
         $success['last_name'] =  $user->last_name;

@@ -40,7 +40,24 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
+    public function profileYouViewed()
+    {
+        return $this->belongsToMany('App\User', 'recently_views', 'viewer_id', 'viewed_id');
+
+    }
+    public function profileViewedYou()
+    {
+        return $this->belongsToMany('App\User', 'recently_views', 'viewed_id', 'viewer_id');
+
+    }
+    public function userProfile()
+    {
+        return $this->hasOne('App\Models\Profile'::class, 'user_id','id');
+    }
     
-    
+    public function userPlan()
+    {
+        return $this->belongsToMany('App\Models\Plan'::class,'user_subscriptions','user_id', 'plan_id');
+    }
     
 }

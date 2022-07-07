@@ -16,7 +16,7 @@ class CreateUserProfilesTable extends Migration
         Schema::create('user_profiles', function (Blueprint $table) {
             $table->bigIncrements('id');
 
-            $table->unsignedBigInteger('user_id')->nullable();
+            $table->unsignedInteger('user_id')->nullable();
             $table->unsignedBigInteger('city_id')->nullable();
             $table->unsignedBigInteger('religion_id')->nullable();
             $table->unsignedBigInteger('sector_id')->nullable();
@@ -55,7 +55,7 @@ class CreateUserProfilesTable extends Migration
             $table->string('living_with_family')->nullable();
             $table->bigInteger('annual_income')->nullable();
             $table->string('about')->nullable();
-            $table->unsignedInteger('profile_visited')->default(0);
+            $table->unsignedInteger('profile_viewed')->default(0);
             $table->unsignedInteger('view_contacts')->default(0);
             $table->string('package_type')->nullable();
 

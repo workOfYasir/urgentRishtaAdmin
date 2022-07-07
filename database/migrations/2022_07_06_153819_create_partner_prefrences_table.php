@@ -25,7 +25,6 @@ class CreatePartnerPrefrencesTable extends Migration
             $table->string('country_living_in')->nullable();
             $table->string('state_living_in')->nullable();
             $table->string('city/district')->nullable();
-            $table->string('martial_status')->nullable();
             $table->tinyInteger('photo_visibilaty')->default(0);
             
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
