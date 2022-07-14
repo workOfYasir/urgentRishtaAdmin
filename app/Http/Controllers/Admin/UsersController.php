@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\User;
-use Spatie\Permission\Models\Role;
+use App\Models\Plan;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use App\Models\UserSubscription;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use App\Http\Requests\Admin\StoreUsersRequest;
 use App\Http\Requests\Admin\UpdateUsersRequest;
 
@@ -19,13 +22,13 @@ class UsersController extends Controller
      */
     public function index()
     {
-        if (! Gate::allows('users_manage')) {
-            return abort(401);
-        }
+        // if (! Gate::allows('users_manage')) {
+        //     return abort(401);
+        // }
 
-        $users = User::all();
-
-        return view('admin.users.index', compact('users'));
+        $users = User::with('userPlan')->get();
+        $plans = Plan::all();
+        return view('admin.users.index', compact('users','plans'));
     }
 
     /**
@@ -49,13 +52,10 @@ class UsersController extends Controller
      */
     public function store(StoreUsersRequest $request)
     {
-        if (! Gate::allows('users_manage')) {
-            return abort(401);
-        }
+        // if (! Gate::allows('users_manage')) {
+        //     return abort(401);
+        // }
         $user = User::create($request->all());
-        $roles = $request->input('roles') ? $request->input('roles') : [];
-        $user->assignRole($roles);
-
         return redirect()->route('admin.users.index');
     }
 
@@ -68,9 +68,9 @@ class UsersController extends Controller
      */
     public function edit(User $user)
     {
-        if (! Gate::allows('users_manage')) {
-            return abort(401);
-        }
+        // if (! Gate::allows('users_manage')) {
+        //     return abort(401);
+        // }
         $roles = Role::get()->pluck('name', 'name');
 
         return view('admin.users.edit', compact('user', 'roles'));
@@ -85,26 +85,26 @@ class UsersController extends Controller
      */
     public function update(UpdateUsersRequest $request, User $user)
     {
-        if (! Gate::allows('users_manage')) {
-            return abort(401);
-        }
+        // if (! Gate::allows('users_manage')) {
+        //     return abort(401);
+        // }
 
         $user->update($request->all());
-        $roles = $request->input('roles') ? $request->input('roles') : [];
-        $user->syncRoles($roles);
+        // $roles = $request->input('roles') ? $request->input('roles') : [];
+        // $user->syncRoles($roles);
 
         return redirect()->route('admin.users.index');
     }
 
     public function show(User $user)
     {
-        if (! Gate::allows('users_manage')) {
-            return abort(401);
-        }
+        // if (! Gate::allows('users_manage')) {
+        //     return abort(401);
+        // }
 
-        $user->load('roles');
-
-        return view('admin.users.show', compact('user'));
+        $user->load('userPlan');
+        $plans = Plan::all();
+        return view('admin.users.show', compact('user','plans'));
     }
 
     /**
@@ -115,9 +115,9 @@ class UsersController extends Controller
      */
     public function destroy(User $user)
     {
-        if (! Gate::allows('users_manage')) {
-            return abort(401);
-        }
+        // if (! Gate::allows('users_manage')) {
+        //     return abort(401);
+        // }
 
         $user->delete();
 
@@ -131,12 +131,22 @@ class UsersController extends Controller
      */
     public function massDestroy(Request $request)
     {
-        if (! Gate::allows('users_manage')) {
-            return abort(401);
-        }
+        // if (! Gate::allows('users_manage')) {
+        //     return abort(401);
+        // }
         User::whereIn('id', request('ids'))->delete();
 
         return response()->noContent();
+    }
+
+    public function addUserSubscription(Request $request)
+    {
+
+       $user = User::find($request->user_id);
+
+       $user->userPlan()->sync([$request->plan_id,$request->plan_id,$request->plan_id]);
+
+        return redirect()->back(); 
     }
 
 }

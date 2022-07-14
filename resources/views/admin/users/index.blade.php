@@ -32,7 +32,8 @@
                             {{ trans('cruds.user.fields.email') }}
                         </th>
                         <th>
-                            {{ trans('cruds.user.fields.roles') }}
+                            {{-- {{ trans('cruds.user.fields.roles') }} --}}
+                            User Plans
                         </th>
                         <th>
                             &nbsp;
@@ -49,24 +50,43 @@
                                 {{ $user->id ?? '' }}
                             </td>
                             <td>
-                                {{ $user->name ?? '' }}
+                                {{ $user->first_name. ' '.$user->last_name ?? '' }}
                             </td>
                             <td>
                                 {{ $user->email ?? '' }}
                             </td>
                             <td>
-                                @foreach($user->roles()->pluck('name') as $role)
+                                <form action="{{ route('admin.users.subscription') }}"  method="post">
+                                    @csrf
+                                    <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                    <div class="row">
+
+                                   
+                                    <div class="form-group col">
+                                        <label for=""></label>
+                                        <select class="form-control form-control-sm" name="plan_id" id="">
+                                           <option hidden>Select Plan</option>
+                                            @foreach($plans as $key => $plan)
+                                                <option value="{{ $plan->id }}" {{ (@$user->userPlan[0]->id == $plan->id) ? 'selected' : '' }}>{{ $plan->name }}</option>
+                                            @endforeach
+                                            
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-xs btn-light">➕</button>
+                                </div>
+                                </form>
+                                {{-- @foreach($user->roles()->pluck('name') as $role)
                                     <span class="badge badge-info">{{ $role }}</span>
-                                @endforeach
+                                @endforeach --}}
                             </td>
                             <td>
                                 <a class="btn btn-xs btn-primary" href="{{ route('admin.users.show', $user->id) }}">
                                     {{ trans('global.view') }}
                                 </a>
 
-                                <a class="btn btn-xs btn-info" href="{{ route('admin.users.edit', $user->id) }}">
+                                {{-- <a class="btn btn-xs btn-info" href="{{ route('admin.users.edit', $user->id) }}">
                                     {{ trans('global.edit') }}
-                                </a>
+                                </a> --}}
 
                                 <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                                     <input type="hidden" name="_method" value="DELETE">

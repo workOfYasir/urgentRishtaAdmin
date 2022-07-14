@@ -79,9 +79,9 @@ class LoginController extends Controller
         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){ 
             $user = Auth::user(); 
             
-            $success['token'] =  $user->createToken('MyApp')-> accessToken; 
-            $success['role']= $user->roles->pluck('name');
-            return response()->json(['success' => $success]); 
+            $token =  $user->createToken('MyApp')-> accessToken; 
+            // $success['role']= $user->roles->pluck('name');
+            return response()->json(['token' => $token]); 
         } 
         else{ 
             return response()->json(['error'=>'Unauthorised'], 401); 

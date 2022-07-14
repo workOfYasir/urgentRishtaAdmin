@@ -41,11 +41,21 @@
 
                                 </i>
                                 {{ trans('cruds.user.title') }}
+                          
                             </a>
                         </li>
                     </ul>
                 </li>
             @endcan
+            <li class="nav-item">
+                <a href="{{ route("admin.users.index") }}" class="nav-link {{ request()->is('admin/users') || request()->is('admin/users/*') ? 'active' : '' }}">
+                    <i class="fa-fw fas fa-user nav-icon">
+
+                    </i>
+                    {{ trans('cruds.user.title') }}
+              
+                </a>
+            </li>
             <li class="nav-item">
                 <a href="{{ route('auth.change_password') }}" class="nav-link">
                     <i class="nav-icon fas fa-fw fa-key">

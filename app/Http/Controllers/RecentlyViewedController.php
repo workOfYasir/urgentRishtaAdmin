@@ -14,19 +14,25 @@ class RecentlyViewedController extends Controller
         $id = RecentlyViewed::insertGetId($request->data);
         $data = RecentlyViewed::find($id);
         return response()->json([
-            ['added user' => $data],
+            ['RecentlyViewed' => $data],
             200,
         ]);
     }
-    public function profilesYouVisied()
+    public function profilesYouVisited()
     {   $id = Auth::user()->id;
         $data = User::where('id',$id)->with('profileYouViewed')->get()->toArray();
-        dd($data);
+        return response()->json([
+            ['profilesYouVisited' => $data],
+            200,
+        ]);
     }
-    public function profilesVisiedYou()
+    public function profilesVisitedYou()
     {   $id = Auth::user()->id;
         $data = User::where('id',$id)->with('profileViewedYou')->get()->toArray();
-        dd($data);
+        return response()->json([
+            ['profilesVisitedYou' => $data],
+            200,
+        ]);
     }
 
 }

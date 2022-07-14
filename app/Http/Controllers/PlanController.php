@@ -12,7 +12,17 @@ class PlanController extends Controller
         $id = Plan::insertGetId($request->data);
         $data = Plan::find($id);
         return response()->json([
-            ['added user' => $data],
+            ['addedPlan' => $data],
+            200,
+        ]);
+    }
+    public function plans()
+    {
+        
+        $data = Plan::all();
+       
+        return response()->json([
+            ['userPlan' => $data],
             200,
         ]);
     }

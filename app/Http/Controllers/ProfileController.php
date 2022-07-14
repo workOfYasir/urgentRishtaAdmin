@@ -12,7 +12,7 @@ class ProfileController extends Controller
         $id = Profile::insertGetId($request->data);
         $data = Profile::find($id);
         return response()->json([
-            ['added user' => $data],
+            ['addedProfile' => $data],
             200,
         ]);
     }
@@ -21,7 +21,7 @@ class ProfileController extends Controller
         $data = Profile::find($request->data['id']);
         $data->update($request->data);
         return response()->json([
-            ['updated user' => $data],
+            ['updatedProfile' => $data],
             200,
         ]);
 
@@ -35,7 +35,7 @@ class ProfileController extends Controller
     {
         $user = Profile::where('id',$request->id)->with('user')->with('sector')->with('city')->with('religion')->get();
         return response()->json([
-            ['added user' => $user],
+            ['profile' => $user],
             200,
         ]);
     }

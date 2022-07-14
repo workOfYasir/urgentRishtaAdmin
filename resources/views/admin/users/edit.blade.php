@@ -10,12 +10,24 @@
         <form action="{{ route("admin.users.update", [$user->id]) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
-            <div class="form-group {{ $errors->has('name') ? 'has-error' : '' }}">
-                <label for="name">{{ trans('cruds.user.fields.name') }}*</label>
-                <input type="text" id="name" name="name" class="form-control" value="{{ old('name', isset($user) ? $user->name : '') }}" required>
-                @if($errors->has('name'))
+            <div class="form-group {{ $errors->has('first_name') ? 'has-error' : '' }}">
+                <label for="name">First Name*</label>
+                <input type="text" id="name" name="first_name" class="form-control" value="{{ old('name', isset($user) ? $user->name : '') }}" required>
+                @if($errors->has('first_name'))
                     <em class="invalid-feedback">
-                        {{ $errors->first('name') }}
+                        {{ $errors->first('first_name') }}
+                    </em>
+                @endif
+                <p class="helper-block">
+                    {{ trans('cruds.user.fields.name_helper') }}
+                </p>
+            </div>
+            <div class="form-group {{ $errors->has('last_name') ? 'has-error' : '' }}">
+                <label for="name">First Name*</label>
+                <input type="text" id="name" name="last_name" class="form-control" value="{{ old('name', isset($user) ? $user->name : '') }}" required>
+                @if($errors->has('last_name'))
+                    <em class="invalid-feedback">
+                        {{ $errors->first('last_name') }}
                     </em>
                 @endif
                 <p class="helper-block">

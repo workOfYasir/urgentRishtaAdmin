@@ -23,7 +23,7 @@
                             {{ trans('cruds.user.fields.name') }}
                         </th>
                         <td>
-                            {{ $user->name }}
+                            {{ $user->first_name.' '.$user->last_name }}
                         </td>
                     </tr>
                     <tr>
@@ -36,12 +36,32 @@
                     </tr>
                     <tr>
                         <th>
-                            Roles
+                            User Plan
                         </th>
                         <td>
-                            @foreach($user->roles()->pluck('name') as $role)
+                            <form action="{{ route('admin.users.subscription') }}"  method="post">
+                                @csrf
+                                <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                <div class="row">
+
+                               
+                                <div class="form-group col">
+                                    <label for=""></label>
+                                    <select class="form-control form-control-sm" name="plan_id" id="">
+                                       <option hidden>Select Plan</option>
+                                        @foreach($plans as $key => $plan)
+                                            <option value="{{ $plan->id }}" {{ (@$user->userPlan[0]->id == $plan->id) ? 'selected' : '' }}>{{ $plan->name }}</option>
+                                        @endforeach
+                                        
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-xs btn-light">➕</button>
+                            </div>
+                            </form>
+                            {{-- {{ @$user->userPlan[0]->name }} --}}
+                            {{-- @foreach($user->roles()->pluck('name') as $role)
                                 <span class="label label-info label-many">{{ $role }}</span>
-                            @endforeach
+                            @endforeach --}}
                         </td>
                     </tr>
                 </tbody>

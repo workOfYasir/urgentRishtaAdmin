@@ -12,7 +12,7 @@ class CountryController extends Controller
         $id = Country::insertGetId($request->data);
         $data = Country::find($id);
         return response()->json([
-            ['added country' => $data],
+            ['addedCountry' => $data],
             200,
         ]);
     }
@@ -21,7 +21,7 @@ class CountryController extends Controller
         $data = Country::find($request->data['id']);
         $data->update($request->data);
         return response()->json([
-            ['updated country' => $data],
+            ['updatedCountry' => $data],
             200,
         ]);
 
