@@ -59,5 +59,5 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\Plan'::class,'user_subscriptions','user_id', 'plan_id');
     }
-    
+
 }

@@ -88,7 +88,7 @@ class RegisterController extends Controller
         $input['password'] = bcrypt($input['password']); 
         $user_id = User::insertGetId($input);
 
-        $data=   array_merge($request->userProfile, ['user_id' => $user_id]);
+        $data = array_merge($request->userProfile, ['user_id' => $user_id]);
     
         Profile::insertGetId($data);
         $user = User::find($user_id);
@@ -96,7 +96,7 @@ class RegisterController extends Controller
         $success['token'] =  $user->createToken('MyApp')-> accessToken; 
         $success['first_name'] =  $user->first_name;
         $success['last_name'] =  $user->last_name;
-        $success['role'] =  $user->getRoleNames();
+
         return response()->json(['success'=>$success]); 
     }
     

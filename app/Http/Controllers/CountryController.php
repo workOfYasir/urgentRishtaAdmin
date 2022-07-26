@@ -43,8 +43,7 @@ class CountryController extends Controller
     {
         $country = Country::get();
         return response()->json([
-            ['countrys' => $country],
-            200,
+            ['countrys' => $country]
         ]);
     }
 }

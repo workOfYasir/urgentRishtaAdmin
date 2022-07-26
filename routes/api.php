@@ -30,29 +30,38 @@ Route::group([
     Route::post('/get-cast','CastController@getCast');
     Route::get('/get-casts','CastController@getCasts');
 
-    Route::post('/create-state','StateController@store');
-    Route::post('/update-state','StateController@update');
-    Route::post('/delete-state','StateController@delete');
-    Route::post('/get-state','StateController@getState');
-    Route::get('/get-states','StateController@getStates');
-
-    Route::post('/create-city','CityController@store');
-    Route::post('/update-city','CityController@update');
-    Route::post('/delete-city','CityController@delete');
-    Route::post('/get-city','CityController@getCity');
-    Route::get('/get-citys','CityController@getCitys');
-
     Route::post('/create-country','CountryController@store');
     Route::post('/update-country','CountryController@update');
     Route::post('/delete-country','CountryController@delete');
     Route::post('/get-country','CountryController@getCountry');
     Route::get('/get-countrys','CountryController@getCountrys');
+
+    Route::post('/create-state','StateController@store');
+    Route::post('/update-state','StateController@update');
+    Route::post('/delete-state','StateController@delete');
+    Route::post('/get-state','StateController@getState');
     
+    Route::post('/create-city','CountryController@store');
+    Route::post('/update-city','CountryController@update');
+    Route::post('/delete-city','CountryController@delete');
+    Route::post('/get-city','CountryController@getCity');
+    
+    Route::post('/create-city','CityController@store');
+    Route::post('/update-city','CityController@update');
+    Route::post('/delete-city','CityController@delete');
+    Route::post('/get-city','CityController@getCity');
+    Route::get('/get-cities','CityController@getCities');
+    
+
     Route::post('/create-sector','SectorController@store');
     Route::post('/update-sector','SectorController@update');
     Route::post('/delete-sector','SectorController@delete');
     Route::post('/get-sector','SectorController@getCountry');
-    Route::get('/get-sectors','SectorController@getCountrys');
+
+    Route::post('/create-religion','ReligionController@store');
+    Route::post('/update-religion','ReligionController@update');
+    Route::post('/delete-religion','ReligionController@delete');
+    Route::post('/get-religion','ReligionController@getCountry');
 
     Route::post('/recent-visit','RecentlyViewedController@store');
     Route::get('/profiles-you-visited','RecentlyViewedController@profilesYouVisited');
@@ -64,3 +73,13 @@ Route::group([
     Route::get('user-plan','UserSubscriptionController@userPlan');
     Route::post('user-subscription','UserSubscriptionController@store');
 });
+Route::get('/get-sectors','SectorController@getSectors');
+Route::get('/get-religions','ReligionController@getReligions');
+
+Route::get('/get-countrys','CountryController@getCountrys');
+
+Route::post('/get-states-by-country','StateController@getStatesByCountry');
+Route::get('/get-states','StateController@getStates');
+
+Route::post('/get-cities-by-state','CityController@getCitesByStates');
+Route::get('/get-cities','CityController@getCities');

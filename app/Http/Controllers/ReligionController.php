@@ -43,8 +43,7 @@ class ReligionController extends Controller
     {
         $religion = Religion::get();
         return response()->json([
-            ['religions' => $religion],
-            200,
+            'religions' => $religion
         ]);
     }
 }

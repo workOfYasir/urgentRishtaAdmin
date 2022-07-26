@@ -19,12 +19,24 @@ class Profile extends Model
     {
         return $this->hasOne(Sector::class,'id','sector_id');
     }
+    public function state()
+    {
+        return $this->hasOne(State::class,'id','state_id');
+    }
     public function city()
     {
-        return $this->hasOne(City::class,'id','city_id')->with('state')->with('country');
+        return $this->hasOne(City::class,'id','city_id');
     }
     public function religion()
     {
         return $this->hasOne(Religion::class,'id','religion_id');
+    }
+    public function cast()
+    {
+        return $this->hasOne('App\Models\Cast'::class,'id', 'cast_id');
+    }
+    public function country()
+    {
+        return $this->hasOne('App\Models\Country'::class,'id','country_id');
     }
 }

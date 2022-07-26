@@ -39,12 +39,16 @@ class StateController extends Controller
             200,
         ]);
     }
+    public function getStatesByCountry(Request $request)
+    {
+        $states = State::where('country_id',$request->country_id)->get();
+        return response()->json([
+            'states' => $states
+        ]);
+    }
     public function getStates()
     {
         $state = State::get();
-        return response()->json([
-            ['states' => $state],
-            200,
-        ]);
+        return response()->json(['states' => $state]);
     }
 }

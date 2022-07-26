@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Sector;
+use App\Models\Community;
 use Illuminate\Http\Request;
 
-class SectorController extends Controller
+class CommunityController extends Controller
 {
     public function store(Request $request)
     {
-        $id = Sector::insertGetId($request->data);
-        $data = Sector::find($id);
+        $id = Community::insertGetId($request->data);
+        $data = Community::find($id);
         return response()->json([
             ['added sector' => $data],
             200,
@@ -18,7 +18,7 @@ class SectorController extends Controller
     }
     public function update(Request $request)
     {
-        $data = Sector::find($request->data['id']);
+        $data = Community::find($request->data['id']);
         $data->update($request->data);
         return response()->json([
             ['updated sector' => $data],
@@ -28,22 +28,23 @@ class SectorController extends Controller
     }
     public function delete(Request $request)
     {
-        $sector = Sector::find($request->id);
+        $sector = Community::find($request->id);
         $sector->delete();
     }
-    public function getSector(Request $request)
+    public function getCommunity(Request $request)
     {
-        $sector = Sector::where('id',$request->id)->get();
+        $sector = Community::where('id',$request->id)->get();
         return response()->json([
             ['sector' => $sector],
             200,
         ]);
     }
-    public function getSectors()
+    public function getCommunitys()
     {
-        $sector = Sector::get();
+        $sector = Community::get();
         return response()->json([
-            'sectors' => $sector
+            ['sectors' => $sector],
+            200,
         ]);
     }
 }

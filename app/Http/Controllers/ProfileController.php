@@ -33,15 +33,12 @@ class ProfileController extends Controller
     }
     public function getProfile(Request $request)
     {
-        $user = Profile::where('id',$request->id)->with('user')->with('sector')->with('city')->with('religion')->get();
-        return response()->json([
-            ['profile' => $user],
-            200,
-        ]);
+        $user = Profile::where('id',$request->id)->with('user')->with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->get();
+        return response()->json($user);
     }
     public function getProfiles()
     {
-        $user = Profile::with('user')->with('sector')->with('city')->with('religion')->get();
+        $user = Profile::with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->get();
         return response()->json([
             ['profiles' => $user],
             200,
