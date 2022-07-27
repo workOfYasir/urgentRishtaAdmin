@@ -94,10 +94,8 @@ class RegisterController extends Controller
         $user = User::find($user_id);
 
         $success['token'] =  $user->createToken('MyApp')-> accessToken; 
-        $success['first_name'] =  $user->first_name;
-        $success['last_name'] =  $user->last_name;
-
-        return response()->json(['success'=>$success]); 
+        $success['user'] = $user;
+        return response()->json($success); 
     }
     
 }

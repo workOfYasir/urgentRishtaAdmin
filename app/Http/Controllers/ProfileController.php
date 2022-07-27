@@ -18,7 +18,7 @@ class ProfileController extends Controller
     }
     public function update(Request $request)
     {
-        $data = Profile::find($request->data['id']);
+        $data = Profile::where('user_id',$request->data['id']);
         $data->update($request->data);
         return response()->json([
             ['updatedProfile' => $data],
