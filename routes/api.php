@@ -22,7 +22,7 @@ Route::group([
     Route::post('/update-profile','ProfileController@update');
     Route::post('/delete-profile','ProfileController@delete');
     Route::post('/get-profile','ProfileController@getProfile');
-    Route::get('/get-profiles','ProfileController@getProfiles');
+    Route::post('/get-profiles','ProfileController@getProfiles');
 
     Route::post('/create-cast','CastController@store');
     Route::post('/update-cast','CastController@update');
@@ -83,3 +83,6 @@ Route::get('/get-states','StateController@getStates');
 
 Route::post('/get-cities-by-state','CityController@getCitesByStates');
 Route::get('/get-cities','CityController@getCities');
+
+Route::post('/get-partner-matches','ProfileController@getPartnerMatch');
+Route::post('/image-store','ProfileController@imageStore');

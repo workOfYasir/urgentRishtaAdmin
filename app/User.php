@@ -59,5 +59,8 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\Models\Plan'::class,'user_subscriptions','user_id', 'plan_id');
     }
-
+    public function picture()
+    {
+        return $this->belongsTo('App\Models\ProfilePicture'::class,'id','user_id');
+    }
 }

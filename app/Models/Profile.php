@@ -13,7 +13,7 @@ class Profile extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class,'user_id','id');
+        return $this->belongsTo(User::class,'user_id','id')->with('picture');
     }
     public function sector()
     {
