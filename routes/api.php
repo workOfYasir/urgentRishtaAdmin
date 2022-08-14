@@ -86,3 +86,5 @@ Route::get('/get-cities','CityController@getCities');
 
 Route::post('/get-partner-matches','ProfileController@getPartnerMatch');
 Route::post('/image-store','ProfileController@imageStore');
+
+Route::post('/update-partner','ProfileController@partnerStore');

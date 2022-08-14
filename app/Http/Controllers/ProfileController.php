@@ -21,7 +21,7 @@ class ProfileController extends Controller
     }
     public function update(Request $request)
     {
-        $data = Profile::where('user_id',$request->data['id']);
+        $data = Profile::where('user_id',Auth::user()->id);
         $data->update($request->data);
         return response()->json([
             ['updatedProfile' => $data],
@@ -36,7 +36,8 @@ class ProfileController extends Controller
     }
     public function getProfile(Request $request)
     {
-        $user = Profile::where('user_id',$request->user_id)->with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->with('user')->get();
+        
+        $user = Profile::where('user_id',($request->user_id==null?Auth::user()->id:$request->user_id))->with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->with('user')->get();
       
         
         $auth_user = PartnerPreferences::where('user_id',Auth::user()->id)->first();
@@ -64,7 +65,7 @@ class ProfileController extends Controller
             ($auth_user['city/district']==$other_user['city/district'] ?$data['city']=true:$data['city']=false);
         }
         $auth_user['image'] = ProfilePicture::where('user_id',Auth::user()->id)->get();
-        
+
         
         return response()->json(['data'=>['user'=>$user,'auth_user'=>$auth_user,'other_user'=>$other_user,'data'=>$data]]);
     }
@@ -118,12 +119,15 @@ class ProfileController extends Controller
     }
     public function partnerStore(Request $request)
     {
-        $id = PartnerPreferences::insertGetId($request->data);
-        $data = PartnerPreferences::find($id);
-        return response()->json([
-            ['addedPartnerPreferences' => $data],
-            200,
-        ]);
+
+        $data = PartnerPreferences::where('user_id',4)->first();
+        if($data==null){
+            PartnerPreferences::insert($request->data);
+        }else{
+            $data->update($request->data);
+        }
+        // ['country_living_in'=>$request->data['country_living_in']]);
+        return response()->json(['data' => $data]);
     }
     public function getPartner(Request $request)
     {
@@ -156,12 +160,12 @@ class ProfileController extends Controller
 
     public function imageStore(Request $request)
     {
-        $user = Auth::user()->id;
-        $imageName = $user.'-Profile'.time().'.'.$request->image->extension();  
+
+        $imageName = $request->user_id.'-Profile'.time().'.'.$request->image->extension();  
         $request->image->move(public_path('images'), $imageName);
         $path = 'images\\'.$imageName;
         
-        $data = ProfilePicture::create(['image_name' => $imageName,'image_path' => $path,'user_id'=>$user]);
+        $data = ProfilePicture::create(['image_name' => $imageName,'image_path' => $path,'user_id'=>$request->user_id]);
         return response()->json([
             ['addedProfilePictures' => $data],
             200,
