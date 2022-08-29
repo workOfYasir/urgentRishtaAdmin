@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use App\Models\ProfilePicture;
@@ -22,9 +23,11 @@ class ProfileController extends Controller
     public function update(Request $request)
     {
         $data = Profile::where('user_id',Auth::user()->id);
+        $user = User::where('id',Auth::user()->id);
+        $user->update($request->user);
         $data->update($request->data);
         return response()->json([
-            ['updatedProfile' => $data],
+            ['updatedProfile' => $request->data],
             200,
         ]);
 
@@ -36,9 +39,7 @@ class ProfileController extends Controller
     }
     public function getProfile(Request $request)
     {
-        
         $user = Profile::where('user_id',($request->user_id==null?Auth::user()->id:$request->user_id))->with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->with('user')->get();
-      
         
         $auth_user = PartnerPreferences::where('user_id',Auth::user()->id)->first();
         $other_user = PartnerPreferences::where('user_id', $request->user_id)->first();
@@ -71,13 +72,15 @@ class ProfileController extends Controller
     }
     public function getProfiles(Request $request)
     {
+        $auth_user =Profile::where('user_id',Auth::user()->id)->first();
 
-        $query = Profile::with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast');
+        $query = Profile::where('gender',$auth_user->gender=='Male'?'Female':'Male')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('userSubscription');
         $qualification = Profile::whereNotNull('qualification')->pluck('qualification');
 
-        // if ($request->has('days')) {
-    if($request->days!='' || $request->days!=null){
-            $days = $request->days;
+        $income_minimum=0;$income_maximum=0;    
+        if($request->days!='' || $request->days!=null){
+       
+        $days = $request->days;
             $days= (int)$days;
             $date = \Carbon\Carbon::today()->subDays($days);         
             $query->where('created_at', '>=', $date);
@@ -104,14 +107,14 @@ class ProfileController extends Controller
         }
 
         
-        // if ($request->has('gender')) {
+        
     if($request->gender!='' || $request->gender!=null){
             $query->where('gender', $request->gender);
         }
         
-        
         return response()->json([
             ['profiles' => $query->get(),
+            $request->income,
             'qualification'=>$qualification],
             $request,
             200,
@@ -119,14 +122,13 @@ class ProfileController extends Controller
     }
     public function partnerStore(Request $request)
     {
-
         $data = PartnerPreferences::where('user_id',4)->first();
         if($data==null){
             PartnerPreferences::insert($request->data);
         }else{
             $data->update($request->data);
         }
-        // ['country_living_in'=>$request->data['country_living_in']]);
+        
         return response()->json(['data' => $data]);
     }
     public function getPartner(Request $request)
@@ -161,11 +163,43 @@ class ProfileController extends Controller
     public function imageStore(Request $request)
     {
 
-        $imageName = $request->user_id.'-Profile'.time().'.'.$request->image->extension();  
-        $request->image->move(public_path('images'), $imageName);
-        $path = 'images\\'.$imageName;
+        if ($request->hasfile('image')) {
+ 
+          
+            ProfilePicture::where('user_id',$request->user_id)->delete();
+     
+            foreach($request->image as $key => $image) {
         
-        $data = ProfilePicture::create(['image_name' => $imageName,'image_path' => $path,'user_id'=>$request->user_id]);
+                $imageName = $request->user_id.'-Profile-'.($key+1).'-'.time().'.'.$image->extension();
+                $path = 'images\\'.$imageName;
+        
+                $image->move(public_path('images'), $imageName);
+
+                  ProfilePicture::insert([
+                    'image_name' => $imageName,'image_path' => $path,'user_id'=>$request->user_id
+                ]);
+            }
+         }
+
+        // $name = $request->user_id.'-Profile'.time();
+        // $imageName = $name.'.'.$request->image->extension();  
+
+        // $request->image->move(public_path('images'), $imageName);
+        // $path = 'images\\'.$imageName;
+        
+        // $imageDB = ProfilePicture::where('user_id',$request->user_id)->first();
+        // if($imageDB)
+        // {
+        //     $imageDB->update([ 
+        //         'image_name' => $imageName,'image_path' => $path
+        //         ]);
+        // }else{
+        //     $imageDB = ProfilePicture::insert([
+        //         'image_name' => $imageName,'image_path' => $path,'user_id'=>$request->user_id
+        //     ]);
+        // }
+        
+        $data = ProfilePicture::where('user_id',$request->user_id)->get();
         return response()->json([
             ['addedProfilePictures' => $data],
             200,
@@ -179,4 +213,44 @@ class ProfileController extends Controller
             200,
         ]);
     }
+    public function pictureSettings(Request $request)
+    {
+        $update = false;
+        $data = Profile::where('user_id',Auth::user()->id)->first();
+        if(isset($request->pictures_settings)){
+            $data->update(['pictures_settings'=>$request->pictures_settings]);
+            $update = true;
+        }
+        $data = Profile::where('user_id',Auth::user()->id)->first();
+        return [$data,$update];
+    }
+    public function search(Request $request)
+    {
+
+        // $posts = app(Pipeline::class)
+        //         ->send(Profile::with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->with('user'))
+        //         ->through([
+        //             \App\QueryFilters\Status::class,
+        //             \App\QueryFilters\OrderBy::class,
+        //         ])
+        //         ->thenReturn()
+        //         ->get();
+        // return view('post.index', compact('posts'));
+    }
+    public function contactView(Request $request)
+    {
+        $authUser = Profile::where('user_id',Auth::user()->id)->with('user')->first();
+        $authUser->update(['view_contacts'=>(((int)$authUser->profile_viewed)+1)]);
+
+        return [$authUser->number,$authUser->user->email];
+    }
+    public function profileStat(Request $request)
+    {
+        $stats = Profile::where('user_id',Auth::user()->id)->with('user')->first();
+        $profileViewedYou = $stats->user->profileViewedYou->count();
+        $profileYouViewed = $stats->user->profileYouViewed->count();
+        $contact = $stats->contact_no;
+        return ['contact'=>$contact,'profileYouViewed'=>$profileYouViewed,'profileViewedYou'=>$profileViewedYou];
+    }
+
 }

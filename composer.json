@@ -14,7 +14,8 @@
         "laravel/tinker": "~1.0",
         "laravelcollective/html": "^6.0",
         "paragonie/random_compat": "2",
-        "spatie/laravel-permission": "^3.0"
+        "spatie/laravel-permission": "^3.0",
+        "webpatser/laravel-uuid": "^4.0"
     },
     "require-dev": {
         "facade/ignition": "^1.4",

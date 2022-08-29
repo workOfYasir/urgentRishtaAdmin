@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Models\Profile;
+use Webpatser\Uuid\Uuid;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class RegisterController extends Controller
 {
@@ -86,6 +87,9 @@ class RegisterController extends Controller
         $input = $request->userData;
         
         $input['password'] = bcrypt($input['password']); 
+        
+        $input = array_merge($input, ['uid' => Uuid::generate()->string]);
+    
         $user_id = User::insertGetId($input);
 
         $data = array_merge($request->userProfile, ['user_id' => $user_id]);

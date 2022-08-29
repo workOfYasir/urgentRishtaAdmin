@@ -20,10 +20,11 @@ class PlanController extends Controller
     {
         
         $data = Plan::all();
-       
-        return response()->json([
-            ['userPlan' => $data],
-            200,
-        ]);
+    //    foreach ($data as $key => $plan) {
+    //     $plan->price -= $plan->price*($plan->discount/100);
+        
+    //    }
+    //    return   $plan->price ;
+        return response()->json( $data);
     }
 }

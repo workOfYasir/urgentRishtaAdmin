@@ -17,13 +17,14 @@ Route::group([
 ],
     function () { 
 
-
     Route::post('/create-profile','ProfileController@store');
     Route::post('/update-profile','ProfileController@update');
     Route::post('/delete-profile','ProfileController@delete');
     Route::post('/get-profile','ProfileController@getProfile');
     Route::post('/get-profiles','ProfileController@getProfiles');
-
+    Route::post('/pictures-settings','ProfileController@pictureSettings');
+    Route::post('/contact-no','ProfileController@contactView');
+    
     Route::post('/create-cast','CastController@store');
     Route::post('/update-cast','CastController@update');
     Route::post('/delete-cast','CastController@delete');
@@ -72,6 +73,10 @@ Route::group([
 
     Route::get('user-plan','UserSubscriptionController@userPlan');
     Route::post('user-subscription','UserSubscriptionController@store');
+    Route::post('user-premium','UserSubscriptionController@premiumUser');
+
+    Route::post('/profile-stats','ProfileController@profileStat');
+
 });
 Route::get('/get-sectors','SectorController@getSectors');
 Route::get('/get-religions','ReligionController@getReligions');
@@ -88,3 +93,4 @@ Route::post('/get-partner-matches','ProfileController@getPartnerMatch');
 Route::post('/image-store','ProfileController@imageStore');
 
 Route::post('/update-partner','ProfileController@partnerStore');
+

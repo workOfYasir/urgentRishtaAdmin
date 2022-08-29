@@ -30,5 +30,12 @@ class UserSubscriptionController extends Controller
             200,
         ]);
     }
-    
+    public function premiumUser()
+    {
+        $data = User::has('userPlan')->with('userProfile')->get();
+        return response()->json([
+            ['premiumUser' => $data],
+            200,
+        ]);
+    }
 }

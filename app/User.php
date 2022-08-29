@@ -52,15 +52,16 @@ class User extends Authenticatable
     }
     public function userProfile()
     {
-        return $this->hasOne('App\Models\Profile'::class, 'user_id','id');
+        return $this->hasOne('App\Models\Profile'::class, 'user_id','id')->with('religion')->with('cast')->with('country')->with('city')->with('state')->with('user');
     }
     
     public function userPlan()
     {
         return $this->belongsToMany('App\Models\Plan'::class,'user_subscriptions','user_id', 'plan_id');
     }
+
     public function picture()
     {
-        return $this->belongsTo('App\Models\ProfilePicture'::class,'id','user_id');
+        return $this->hasMany('App\Models\ProfilePicture'::class,'user_id','id');
     }
 }
