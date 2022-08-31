@@ -24,6 +24,9 @@ Route::group([
     Route::post('/get-profiles','ProfileController@getProfiles');
     Route::post('/pictures-settings','ProfileController@pictureSettings');
     Route::post('/contact-no','ProfileController@contactView');
+    Route::post('filters','ProfileController@filters');
+    Route::post('/get-profiles-matches','ProfileController@getProfilesMatches');
+    Route::post('/get-picture','ProfileController@picture');
     
     Route::post('/create-cast','CastController@store');
     Route::post('/update-cast','CastController@update');
@@ -74,7 +77,6 @@ Route::group([
     Route::get('user-plan','UserSubscriptionController@userPlan');
     Route::post('user-subscription','UserSubscriptionController@store');
     Route::post('user-premium','UserSubscriptionController@premiumUser');
-
     Route::post('/profile-stats','ProfileController@profileStat');
 
 });
