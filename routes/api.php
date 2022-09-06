@@ -22,12 +22,17 @@ Route::group([
     Route::post('/delete-profile','ProfileController@delete');
     Route::post('/get-profile','ProfileController@getProfile');
     Route::post('/get-profiles','ProfileController@getProfiles');
+    Route::post('/get-new-profiles','ProfileController@getNewProfiles');
+    Route::post('/get-searched-profiles','ProfileController@getSearchedProfiles');
     Route::post('/pictures-settings','ProfileController@pictureSettings');
     Route::post('/contact-no','ProfileController@contactView');
     Route::post('filters','ProfileController@filters');
     Route::post('/get-profiles-matches','ProfileController@getProfilesMatches');
     Route::post('/get-picture','ProfileController@picture');
-    
+    Route::post('/get-basic-search','ProfileController@getBasicSearch');
+    Route::post('/get-advance-search','ProfileController@getAdvanceSearch');
+    Route::get('/age','ProfileController@birth');
+
     Route::post('/create-cast','CastController@store');
     Route::post('/update-cast','CastController@update');
     Route::post('/delete-cast','CastController@delete');
