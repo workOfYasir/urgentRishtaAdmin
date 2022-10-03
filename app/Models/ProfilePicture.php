@@ -10,6 +10,6 @@ class ProfilePicture extends Model
     protected $fillable = ['user_id', 'image_name', 'image_path', 'property'];
     public function picture()
     {
-        return $this->hasMany('App\Models\ProfilePicture'::class,'id','user_id');
+        return $this->hasMany(ProfilePicture::class,'id','user_id');
     }
 }

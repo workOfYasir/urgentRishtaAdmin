@@ -148,5 +148,18 @@ class UsersController extends Controller
 
         return redirect()->back(); 
     }
+    public function forgotPasswordEmail(Request $request)
+    {
+        $user = User::where('email',$request->email)->first();
+        return response()->json($user->email,200);
+
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $user = User::where('email',$request->email)->first();
+        $user->update(['password'=>$request->password]);
+        return 'ok';
+    }
 
 }

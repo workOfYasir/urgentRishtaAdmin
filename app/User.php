@@ -1,6 +1,7 @@
 <?php
 namespace App;
 
+use App\Models\UserFriend;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -23,8 +24,9 @@ class User extends Authenticatable
     use HasApiTokens;
 
     protected $fillable = ['first_name','last_name','email', 'phone', 'password', 'remember_token'];
-    
-    
+    protected $primaryKey = "id";
+//    protected $appends = ['sender_name'];
+//'receiver_name',
     /**
      * Hash password
      * @param $input
@@ -52,16 +54,32 @@ class User extends Authenticatable
     }
     public function userProfile()
     {
-        return $this->hasOne('App\Models\Profile'::class, 'user_id','id')->with('religion')->with('cast')->with('country')->with('city')->with('state')->with('user');
+        return $this->hasOne('App\Models\Profile', 'user_id','id')->with('religion')->with('cast')->with('country')->with('city')->with('state')->with('user');
     }
     
     public function userPlan()
     {
-        return $this->belongsToMany('App\Models\Plan'::class,'user_subscriptions','user_id', 'plan_id');
+        return $this->belongsToMany('App\Models\Plan','user_subscriptions','user_id', 'plan_id');
     }
 
     public function picture()
     {
-        return $this->hasMany('App\Models\ProfilePicture'::class,'user_id','id');
+        return $this->hasMany('App\Models\ProfilePicture','user_id','id');
     }
+//    public function senderRequest()
+//    {
+//        return $this->belongsTo(UserFriend::class,'id','sender_id')->with('sender');
+//    }
+    public function friendRequest()
+    {
+        return $this->belongsTo(UserFriend::class,'id','receiver_id')->with('receiver')->with('sender');
+    }
+//    public function getSenderNameAttribute()
+//    {
+//        return $this->senderRequest()->sender()->getEager()->first_name.' '.$this->senderRequest()->sender()->getEager()->last_name;
+//    }
+//    public function getReceiverNameAttribute()
+//    {
+//        return $this->friendRequest['first_name'];
+//    }
 }

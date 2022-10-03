@@ -2,10 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cast;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\Religion;
+use App\Models\Sector;
+use App\Models\State;
+use App\Models\UserFriend;
 use App\User;
 use Carbon\Carbon;
 use App\Models\Profile;
 use Carbon\CarbonPeriod;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use App\Models\ProfilePicture;
 use App\Models\PartnerPreferences;
@@ -76,7 +84,43 @@ class ProfileController extends Controller
         return response()->json(['data' => ['user' => $user, 'auth_user' => $auth_user, 'other_user' => $other_user, 'data' => $data]]);
     }
 
-public function picture()
+    public function getTodayProfile(Request $request)
+    {
+        $auth = Profile::where('user_id','=',Auth::user()->id)->with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->with('user')->first();
+
+        $auth_user = PartnerPreferences::where('user_id', Auth::user()->id)->first();
+        $user = Profile::where('user_id','!=',Auth::user()->id)->where('gender',($auth->gender=='Male'?'Female':'Male'))->where('marital_status',$auth_user->martial_status)->where('religion_id',$auth_user->religion)->where('language',$auth_user->mother_tongue)->with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->with('user')->inRandomOrder()->take(1)->get();
+
+        $other_user = PartnerPreferences::where('user_id', $user[0]->user_id)->first();
+        if ($auth_user == null || $other_user == null) {
+            $data['age'] = false;
+            $data['height'] = false;
+            $data['religion'] = false;
+            $data['mother_tongue'] = false;
+            $data['marital_status'] = false;
+            $data['community'] = false;
+            $data['country_living_in'] = false;
+            $data['city'] = false;
+            $data['state_living_in'] = false;
+            $data['city'] = false;
+        } else {
+            ($auth_user->age == $other_user->age ? $data['age'] = true : $data['age'] = false);
+            ($auth_user->height == $other_user->height ? $data['height'] = true : $data['height'] = false);
+            ($auth_user->marital_status == $other_user->marital_status ? $data['marital_status'] = true : $data['marital_status'] = false);
+            ($auth_user->religion == $other_user->religion ? $data['religion'] = true : $data['religion'] = false);
+            ($auth_user->mother_tongue == $other_user->mother_tongue ? $data['mother_tongue'] = true : $data['mother_tongue'] = false);
+            ($auth_user->community == $other_user->community ? $data['community'] = true : $data['community'] = false);
+            ($auth_user->country_living_in == $other_user->country_living_in ? $data['country_living_in'] = true : $data['country_living_in'] = false);
+            ($auth_user->state_living_in == $other_user->state_living_in ? $data['state_living_in'] = true : $data['state_living_in'] = false);
+            ($auth_user['city/district'] == $other_user['city/district'] ? $data['city'] = true : $data['city'] = false);
+        }
+        $auth_user['image'] = ProfilePicture::where('user_id', Auth::user()->id)->get();
+
+
+        return response()->json(['data' => ['user' => $user, 'auth_user' => $auth_user, 'other_user' => $other_user, 'data' => $data]]);
+    }
+
+    public function picture()
 {
     return ProfilePicture::where('user_id', Auth::user()->id)->first();
 }
@@ -182,11 +226,12 @@ public function getNewProfiles(Request $request)
 }    
 
     public function getProfiles(Request $request)
-    {   
+    {
 
         $auth_user = Profile::where('user_id', Auth::user()->id)->first();
 
-        $query = Profile::where('gender', $auth_user->gender == 'Male' ? 'Female' : 'Male')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('userSubscription');
+        $query = Profile::where('gender', $auth_user->gender == 'Male' ? 'Female' : 'Male')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('state')->with('userSubscription');
+
         $qualification = Profile::whereNotNull('qualification')->pluck('qualification');
 
         $income_minimum = 0;
@@ -380,7 +425,8 @@ public function getNewProfiles(Request $request)
 
     public function partnerStore(Request $request)
     {
-        $data = PartnerPreferences::where('user_id', 4)->first();
+        $data = PartnerPreferences::where('user_id', Auth::user()->id)->first();
+
         if ($data == null) {
             PartnerPreferences::insert($request->data);
         } else {
@@ -411,18 +457,19 @@ public function getNewProfiles(Request $request)
         ($auth_user->state_living_in == $other_user->state_living_in ? $data['state_living_in'] = true : $data['state_living_in'] = false);
         ($auth_user['city/district'] == $other_user['city/district'] ? $data['city'] = true : $data['city'] = false);
         return ($data);
-        // return response()->json([
-        //     ['partnerPreferences' => $data],
-        //     200,
-        // ]);
-    }
 
+    }
+    public function getImage()
+    {
+        $data = ProfilePicture::where('user_id', Auth::user()->id)->get();
+        return response()->json(
+            $data,
+            200
+        );
+    }
     public function imageStore(Request $request)
     {
-
         if ($request->hasfile('image')) {
-
-            ProfilePicture::where('user_id', $request->user_id)->delete();
 
             foreach ($request->image as $key => $image) {
 
@@ -436,31 +483,48 @@ public function getNewProfiles(Request $request)
                 ]);
             }
         }
-
-        // $name = $request->user_id.'-Profile'.time();
-        // $imageName = $name.'.'.$request->image->extension();  
-
-        // $request->image->move(public_path('images'), $imageName);
-        // $path = 'images\\'.$imageName;
-
-        // $imageDB = ProfilePicture::where('user_id',$request->user_id)->first();
-        // if($imageDB)
-        // {
-        //     $imageDB->update([ 
-        //         'image_name' => $imageName,'image_path' => $path
-        //         ]);
-        // }else{
-        //     $imageDB = ProfilePicture::insert([
-        //         'image_name' => $imageName,'image_path' => $path,'user_id'=>$request->user_id
-        //     ]);
-        // }
-
         $data = ProfilePicture::where('user_id', $request->user_id)->get();
         return response()->json([
             ['addedProfilePictures' => $data],
             200,
         ]);
     }
+    public function deleteImage(Request $request)
+    {
+        ProfilePicture::where('id',$request->id)->delete();
+
+        $data = ProfilePicture::where('user_id', $request->user_id)->get();
+        return response()->json(
+            'picture deleted',
+        200);
+    }
+
+//    public function imageStore(Request $request)
+//    {
+//
+//        if ($request->hasfile('image')) {
+//
+//            ProfilePicture::where('user_id', $request->user_id)->delete();
+//
+//            foreach ($request->image as $key => $image) {
+//
+//                $imageName = $request->user_id . '-Profile-' . ($key + 1) . '-' . time() . '.' . $image->extension();
+//                $path = 'images\\' . $imageName;
+//
+//                $image->move(public_path('images'), $imageName);
+//
+//                ProfilePicture::insert([
+//                    'image_name' => $imageName, 'image_path' => $path, 'user_id' => $request->user_id
+//                ]);
+//            }
+//        }
+//
+//        $data = ProfilePicture::where('user_id', $request->user_id)->get();
+//        return response()->json([
+//            ['addedProfilePictures' => $data],
+//            200,
+//        ]);
+//    }
     public function getImages(Request $request)
     {
         $data = ProfilePicture::where('user_id', $request->user_id)->first();
@@ -611,7 +675,7 @@ public function getNewProfiles(Request $request)
         $auth_user = Profile::where('user_id', Auth::user()->id)->first();
 
         $query = Profile::where('gender', $auth_user->gender == 'Male' ? 'Female' : 'Male')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('userSubscription');
-//    return $query;
+
         $qualification = Profile::whereNotNull('qualification')->pluck('qualification');
 
         $income_minimum = 0;
@@ -620,43 +684,34 @@ public function getNewProfiles(Request $request)
         $height_maximum = 0;
 
         if(@$request->country != '' || @$request->country !=null){
-       // return 'ok1';
-            $query->where('country_id', @$request->country); 
+       $query->where('country_id', @$request->country);
         }
         if(@$request->state != '' || @$request->state !=null){
-       // return 'ok2';
-            $query->where('state_id', @$request->state);
+       $query->where('state_id', @$request->state);
         }
         if(@$request->city != '' || @$request->city !=null){
-       // return 'ok3';
-            $query->where('city_id', @$request->city);
+       $query->where('city_id', @$request->city);
         }
         if(@$request->religion != '' || @$request->religion !=null){
-       // return 'ok4';
-            $query->where('religion_id', @$request->religion);
+       $query->where('religion_id', @$request->religion);
         }
         if(@$request->sector != '' || @$request->sector !=null){
-       // return 'ok5';
-            $query->where('sector_id', @$request->sector);
+       $query->where('sector_id', @$request->sector);
         }
         if(@$request->cast != '' || @$request->cast !=null){
-       // return 'ok6';
-            $query->where('cast_id', @$request->cast);
+       $query->where('cast_id', @$request->cast);
         }
         if(@$request->first_name != '' || @$request->first_name !=null){
-       // return 'ok7';
-            $query->where('first_name', @$request->first_name);
+       $query->where('first_name', @$request->first_name);
         }
         if(@$request->last_name != '' || @$request->last_name !=null){
-       // return 'ok8';
-            $query->where('last_name', @$request->last_name);
+       $query->where('last_name', @$request->last_name);
         }
         if(@$request->gender != '' || @$request->gender !=null){
-       // return 'ok9';
-            $query->where('gender', @$request->gender);
+       $query->where('gender', @$request->gender);
         }
         if(@$request->min_age != '' || @$request->max_age !=null || @$request->max_age != '' || @$request->min_age !=null){
-       // return 'ok10';
+
             
             $expected_min_age = Carbon::now()->subYear(@$request->min_age);
             $expected_max_age = Carbon::now()->subYear(@$request->max_age);
@@ -672,100 +727,100 @@ public function getNewProfiles(Request $request)
 
         }
         if(@$request->date_of_Birth != '' || @$request->date_of_Birth !=null){
-       // return 'ok11';
+
             $query->where('date_of_Birth', @$request->date_of_Birth);
         }
         if(@$request->marital_status != '' || @$request->marital_status !=null){
-       // return 'ok12'.$request->marital_status;
+       $request->marital_status;
             $query->where('marital_status', @$request->marital_status);
         }
 
         if(@$request->On_behalf != '' || @$request->On_behalf !=null){
-       // return 'ok13';
+
             $query->where('On_behalf', @$request->On_behalf);
         }
         if(@$request->star != '' || @$request->star !=null){
-       // return 'ok14';
+
             $query->where('star', @$request->star);
         }
         if(@$request->disability != '' || @$request->disability !=null){
-       // return 'ok15';
+
             $query->where('disability', @$request->disability);
         }
         if(@$request->blood_group != '' || @$request->blood_group !=null){
-       // return 'ok16';
+
             $query->where('blood_group', @$request->blood_group);
         }
         if(@$request->current_residency_country != '' || @$request->current_residency_country !=null){
-       // return 'ok17';
+
             $query->where('current_residency_country', @$request->current_residency_country);
         }
         if(@$request->city != '' || @$request->city !=null){
-       // return 'ok18';
+
             $query->where('city', @$request->city);
         }
         if(@$request->town != '' || @$request->town !=null){
-       // return 'ok19';
+
             $query->where('town', @$request->town);
         }
         if(@$request->number != '' || @$request->number !=null){
-       // return 'ok20';
+
             $query->where('number', @$request->number);
         }
         if(@$request->whatsapp_number != '' || @$request->whatsapp_number !=null){
-       // return 'ok21';
+
             $query->where('whatsapp_number', @$request->whatsapp_number);
         }
         if(@$request->hobbies != '' || @$request->hobbies !=null){
-       // return 'ok22';
+
             $query->where('hobbies', @$request->hobbies);
         }
         if(@$request->interest != '' || @$request->interest !=null){
-       // return 'ok23';
+
             $query->where('interest', @$request->interest);
         }
         if(@$request->qualification != '' || @$request->qualification !=null){
-       // return 'ok24';
+
             $query->where('qualification', @$request->qualification);
         }
         if(@$request->working_with != '' || @$request->working_with !=null){
-       // return 'ok25';
+
             $query->where('working_with', @$request->working_with);
         }
         if(@$request->company_name != '' || @$request->company_name !=null){
-       // return 'ok26';
+
             $query->where('company_name', @$request->company_name);
         }
         if(@$request->job != '' || @$request->job !=null){
-       // return 'ok27';
+
             $query->where('job', @$request->job);
         }
         if(@$request->no_of_brothers != '' || @$request->no_of_brothers !=null){
-       // return 'ok28';
+
             $query->where('no_of_brothers', @$request->no_of_brothers);
         }
         if(@$request->no_of_sister != '' || @$request->no_of_sister !=null){
-       // return 'ok29';
+
             $query->where('no_of_sister', @$request->no_of_sister);
         }
         if(@$request->family_type != '' || @$request->family_type !=null){
-       // return 'ok30';
+
             $query->where('family_type', @$request->family_type);
         }
         if(@$request->father_status != '' || @$request->father_status !=null){
-       // return 'ok41';
+
             $query->where('father_status', @$request->father_status);
         }
         if(@$request->mother_status != '' || @$request->mother_status !=null){
-       // return 'ok42';
+
             $query->where('mother_status', @$request->mother_status);
         }
         if(@$request->brother_marital_status != '' || @$request->brother_marital_status !=null){
-       // return 'ok43';
+
             $query->where('brother_marital_status', @$request->brother_marital_status);
         }
         if(@$request->family_address != '' || @$request->family_address !=null){
-       // return 'ok44';
+
             $query->where('family_address', @$request->family_address);
         }
         if(@$request->martial_status != '' || @$request->martial_status !=null){
@@ -774,12 +829,12 @@ public function getNewProfiles(Request $request)
      
         }
         if(@$request->living_with_family != '' || @$request->living_with_family !=null){
-       // return 'ok46'.$request->living_with_family;
+       $request->living_with_family;
             $query->where('living_with_family', @$request->living_with_family);
         }
         if ($request->has('income')) {
             if ($request->income != '' || $request->income != null) {
-    // return 'ok47';
+
     
                 $income =  explode("-", $request->income);
                 if (count($income) == 2) {
@@ -792,7 +847,7 @@ public function getNewProfiles(Request $request)
             }
         }
         if (@$request->has('height')) {
-            // return 'ok48';
+
             if (@$request->height != '' || @$request->height != null) {
     
     
@@ -807,40 +862,21 @@ public function getNewProfiles(Request $request)
             }
         }
         if(@$request->about != '' || @$request->about !=null){
-            // return 'ok49';
+
             $query->where('about', @$request->about);
         }
         if(@$request->profile_viewed != '' || @$request->profile_viewed !=null){
-            // return 'ok50';
+
             $query->where('profile_viewed', @$request->profile_viewed);
         }
         if(@$request->view_contacts != '' || @$request->view_contacts !=null){
-          // return 'ok51';
+
             $query->where('view_contacts', @$request->view_contacts);
         }
         if(@$request->pictures_settings != '' || @$request->pictures_settings !=null){
-         // return 'ok52';
+
             $query->where('pictures_settings', @$request->pictures_settings);
         }
-
-        // if (@$request->marital_status != '' || @$request->marital_status != null) {     
-        //     $query->where('marital_status', @$request->marital_status);
-        // }
-        // if (@$request->country != '' || @$request->country != null) {     
-        //     $query->where('country_id', @$request->country);
-        // }
-        // if (@$request->state != '' || @$request->state != null) {     
-        //     $query->where('state_id', @$request->state);
-        // }
-        // if (@$request->city != '' || @$request->city != null) {     
-        //     $query->where('city_id', @$request->city);
-        // }
-        // if (@$request->sector != '' || @$request->sector != null) {     
-        //     $query->where('sector_id', @$request->sector);
-        // }
-        // if (@$request->religion != '' || @$request->religion != null) {     
-        //     $query->where('religion_id', @$request->religion);
-        // }
 
         return response()->json([
             [
@@ -850,15 +886,63 @@ public function getNewProfiles(Request $request)
             200,
         ]);
     }
-    // public function qualification()
-    // {
-    //    $data = Profile::where('user_id',Auth::user()->id)->distinct()->pluck('qualification');
-    //     return response()->json([
-    //         [
-    //            $data,
-    //         ],
-    //         200,
-    //     ]);
-    // }
-    
+
+    public function getData()
+    {
+        $country = Country::get();
+        $state = State::get();
+        $city = City::get();
+        $religion = Religion::get();
+        $sector = Sector::get();
+        $cast = Cast::get();
+        return response()->json(
+             [
+                'country'=>$country,
+                'state'=>$state,
+                'city'=>$city,
+                'religion'=>$religion,
+                'sector'=>$sector,
+                'cast'=>$cast,
+             ],
+             200
+         );
+
+    }
+    public function sendRequest(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        UserFriend::create([
+            'sender_id'=>$user_id,
+            'receiver_id'=>$request->rec_id,
+            'status'=>'pending',
+        ]);
+        return response()->json([
+            'request sent'
+        ],200);
+    }
+    public function friendRequestAction(Request $request)
+    {
+
+        $user_id = Auth::user()->id;
+       $data = UserFriend::where('sender_id',$request->sender_id)->where('receiver_id',$user_id)->first();
+       $data->update(['status'=>$request->status]);
+        return response()->json([
+            'request updated'
+        ],200);
+    }
+    public function requesList()
+    {
+        $data = UserFriend::where('receiver_id',Auth::user()->id)->where('status','Pending')->get();
+        return response()->json($data,200);
+    }
+    public function deleteRequest(Request $request)
+    {
+        $user_id = Auth::user()->id;
+        UserFriend::where('sender_id',$request->sender_id)->where('receiver_id',$user_id)->delete();
+        return response()->json([
+            'request deleted'
+        ],200);
+    }
+
+
 }

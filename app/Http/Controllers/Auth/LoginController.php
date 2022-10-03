@@ -37,24 +37,16 @@ class LoginController extends Controller
 
         $user =auth()->user()->roles->pluck('name');
         
-        // dd($user[0]);
-        if ($user[0]=='administrator') {
+
+        if ($user=='administrator') {
          
             return redirect('/admin/home');
-        }else if($user[0]=='artist'){
+        }else if($user=='artist'){
             return 'artist';
-        }else if($user[0]=='customer'){
+        }else if($user=='customer'){
             return 'customer';
         }
 
-        // if ($user->hasRole('artist')) {
-        //     // dd('ok');
-        //     return redirect('/artist/home');
-        // }
-
-        // if ($user->hasRole('customer')) {
-        //     return redirect('/customer/home');
-        // }
     }
 
     /**

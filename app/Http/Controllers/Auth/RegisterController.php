@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\User;
 use App\Models\Profile;
+use phpseclib\Crypt\Random;
 use Webpatser\Uuid\Uuid;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -75,20 +76,12 @@ class RegisterController extends Controller
     }
     public function registerApi(Request $request) 
     { 
-        // $validator = Validator::make($request->all(), [ 
-        //     'first_name' => 'required', 
-        //     'last_name' => 'required', 
-        //     'email' => 'required|email', 
-        //     'password' => 'required', 
-        // ]);
-        // if ($validator->fails()) { 
-        //     return response()->json(['error'=>$validator->errors()], 401);            
-        // }
+
         $input = $request->userData;
         
         $input['password'] = bcrypt($input['password']); 
         
-        $input = array_merge($input, ['uid' => Uuid::generate()->string]);
+        $input = array_merge($input, ['uid' => '2345678-564yg89']);
     
         $user_id = User::insertGetId($input);
 

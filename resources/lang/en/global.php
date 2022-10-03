@@ -157,7 +157,7 @@ return [
     'location'                             => 'Location',
     'locations'                            => 'Locations',
     'main_currency'                        => 'Main currency',
-    'message'                              => 'Message',
+    'message'                              => 'MessageE',
     'messages'                             => 'Messages',
     'name'                                 => 'Name',
     'new_calendar_source'                  => 'Create new calendar source',

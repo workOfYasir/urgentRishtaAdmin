@@ -11,6 +11,7 @@ Route::get('/test', function(){
 });
 Route::post('/login', 'Auth\LoginController@loginApi');
 Route::post('/register', 'Auth\RegisterController@registerApi');
+Route::patch('change_password', 'Auth\ChangePasswordController@changePassword');
 
 Route::group([
     'middleware' => ['auth:api' ]
@@ -32,6 +33,11 @@ Route::group([
     Route::post('/get-basic-search','ProfileController@getBasicSearch');
     Route::post('/get-advance-search','ProfileController@getAdvanceSearch');
     Route::get('/age','ProfileController@birth');
+    Route::get('/get-today-profile','ProfileController@getTodayProfile');
+    Route::post('/friend-request','ProfileController@sendRequest');
+    Route::get('/request-list','ProfileController@requesList');
+    Route::post('/request-action','ProfileController@friendRequestAction');
+        Route::post('/update-partner','ProfileController@partnerStore');
 
     Route::post('/create-cast','CastController@store');
     Route::post('/update-cast','CastController@update');
@@ -70,7 +76,6 @@ Route::group([
     Route::post('/create-religion','ReligionController@store');
     Route::post('/update-religion','ReligionController@update');
     Route::post('/delete-religion','ReligionController@delete');
-    Route::post('/get-religion','ReligionController@getCountry');
 
     Route::post('/recent-visit','RecentlyViewedController@store');
     Route::get('/profiles-you-visited','RecentlyViewedController@profilesYouVisited');
@@ -84,7 +89,21 @@ Route::group([
     Route::post('user-premium','UserSubscriptionController@premiumUser');
     Route::post('/profile-stats','ProfileController@profileStat');
 
-});
+    Route::post('fetchUsers','ChatsController@fetchUsers');
+
+    Route::get('/', 'ChatsController@index');
+    Route::post('fetchmessages', 'ChatsController@fetchMessages');
+    Route::post('messages', 'ChatsController@sendMessage');
+
+    Route::get('/images','ProfileController@getImage');
+
+
+    });
+Route::post('/forgot-password-email-match','Admin\UsersController@forgotPasswordEmail');
+Route::post('/forgot-password','Admin\UsersController@forgotPassword');
+
+Route::get('/get-data','ProfileController@getData');
+
 Route::get('/get-sectors','SectorController@getSectors');
 Route::get('/get-religions','ReligionController@getReligions');
 
@@ -97,7 +116,10 @@ Route::post('/get-cities-by-state','CityController@getCitesByStates');
 Route::get('/get-cities','CityController@getCities');
 
 Route::post('/get-partner-matches','ProfileController@getPartnerMatch');
-Route::post('/image-store','ProfileController@imageStore');
 
-Route::post('/update-partner','ProfileController@partnerStore');
+Route::post('/image-store','ProfileController@imageStore');
+Route::post('/image-delete','ProfileController@deleteImage');
+
+
+
 
