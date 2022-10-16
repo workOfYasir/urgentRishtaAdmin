@@ -35,9 +35,13 @@ Route::group([
     Route::get('/age','ProfileController@birth');
     Route::get('/get-today-profile','ProfileController@getTodayProfile');
     Route::post('/friend-request','ProfileController@sendRequest');
-    Route::get('/request-list','ProfileController@requesList');
+    Route::get('/request-list','ProfileController@requestList');
     Route::post('/request-action','ProfileController@friendRequestAction');
-        Route::post('/update-partner','ProfileController@partnerStore');
+    Route::post('/all-sent-requests','ProfileController@allSentFriendRequestList');
+    Route::post('/all-recieved-requests','ProfileController@allRecievedFriendRequestList');
+    Route::post('/profile-image','ProfileController@profileImageStore');
+
+    Route::post('/update-partner','ProfileController@partnerStore');
 
     Route::post('/create-cast','CastController@store');
     Route::post('/update-cast','CastController@update');

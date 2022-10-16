@@ -66,20 +66,10 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\ProfilePicture','user_id','id');
     }
-//    public function senderRequest()
-//    {
-//        return $this->belongsTo(UserFriend::class,'id','sender_id')->with('sender');
-//    }
+
     public function friendRequest()
     {
         return $this->belongsTo(UserFriend::class,'id','receiver_id')->with('receiver')->with('sender');
     }
-//    public function getSenderNameAttribute()
-//    {
-//        return $this->senderRequest()->sender()->getEager()->first_name.' '.$this->senderRequest()->sender()->getEager()->last_name;
-//    }
-//    public function getReceiverNameAttribute()
-//    {
-//        return $this->friendRequest['first_name'];
-//    }
+
 }

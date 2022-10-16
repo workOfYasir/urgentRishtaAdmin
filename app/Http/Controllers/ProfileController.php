@@ -25,7 +25,13 @@ class ProfileController extends Controller
     public $array = [];
     public function store(Request $request)
     {
-        $id = Profile::insertGetId($request->data);
+        do {
+            $six_digit_random_number =  mt_rand(100000, 999999);
+        }while(User::where('uid',$six_digit_random_number)->exists());
+
+        $input = ($request->data+= ['uid'=>$six_digit_random_number]);
+
+        $id = Profile::insertGetId($input);
         $data = Profile::find($id);
         return response()->json([
             ['addedProfile' => $data],
@@ -52,7 +58,9 @@ class ProfileController extends Controller
     }
     public function getProfile(Request $request)
     {
+        $userPlan = false;
         $user = Profile::where('user_id', ($request->user_id == null ? Auth::user()->id : $request->user_id))->with('country')->with('state')->with('sector')->with('city')->with('religion')->with('cast')->with('user')->get();
+        $authUserPlan = User::where('id', Auth::user()->id)->withCount('userPlan')->first();
 
         $auth_user = PartnerPreferences::where('user_id', Auth::user()->id)->first();
         $other_user = PartnerPreferences::where('user_id', $request->user_id)->first();
@@ -79,9 +87,11 @@ class ProfileController extends Controller
             ($auth_user['city/district'] == $other_user['city/district'] ? $data['city'] = true : $data['city'] = false);
         }
         $auth_user['image'] = ProfilePicture::where('user_id', Auth::user()->id)->get();
+        if($authUserPlan->user_plan_count!=0){
+           $userPlan = true;
+        }
 
-
-        return response()->json(['data' => ['user' => $user, 'auth_user' => $auth_user, 'other_user' => $other_user, 'data' => $data]]);
+        return response()->json(['data' => ['user' => $user, 'auth_user' => $auth_user, 'other_user' => $other_user, 'data' => $data,'user_plan'=>$userPlan]]);
     }
 
     public function getTodayProfile(Request $request)
@@ -209,11 +219,6 @@ public function getNewProfiles(Request $request)
     }
 
 
-
-    // if($request->gender!='' || $request->gender!=null){
-    //         $query->where('gender', $request->gender);
-    //     }
-
     return response()->json([
         [
             'profiles' => $query->orderBy('id', 'DESC')->get(),
@@ -257,8 +262,6 @@ public function getNewProfiles(Request $request)
         if(@$request->cast != '' || @$request->cast !=null){
             $query->where('cast_id', @$request->cast);
         }
-
-
         if (@$request->days != '' || $request->days != null) {
 
             $days = $request->days;
@@ -266,16 +269,11 @@ public function getNewProfiles(Request $request)
             $date = \Carbon\Carbon::today()->subDays($days);
             $query->where('created_at', '>=', $date);
         }
-
-
         if (@$request->qualification != '' || @$request->qualification != null) {
      
             $query->where('qualification', @$request->qualification);
         }
-
         if (@$request->income != '' || @$request->income != null) {
-
-
 
                 $income =  explode("-", @$request->income);
                 if (count($income) == 2) {
@@ -298,20 +296,16 @@ public function getNewProfiles(Request $request)
                 }
             
         }
-
         if (@$request->working_with != '' || @$request->working_with != null) {
             $query->where('working_with', @$request->working_with);
         }
         if (@$request->blood_group != '' || @$request->blood_group != null) {
- 
             $query->where('blood_group', @$request->blood_group);
         }
-
         if (@$request->on_behalf != '' || @$request->on_behalf != null) {
 
             $query->where('on_behalf', @$request->on_behalf);
         }
-
         if($request->gender!='' || $request->gender!=null){
  
             $query->where('gender', $request->gender);
@@ -363,12 +357,9 @@ public function getNewProfiles(Request $request)
             $date = \Carbon\Carbon::today()->subDays($days);
             $query->where('created_at', '>=', $date);
         }
-
-
         if ($request->qualification != '' || $request->qualification != null) {
             $query->where('qualification', $request->qualification);
         }
-
         if ($request->has('income')) {
             if ($request->income != '' || $request->income != null) {
 
@@ -397,14 +388,12 @@ public function getNewProfiles(Request $request)
                 }
             }
         }
-
         if ($request->working_with != '' || $request->working_with != null) {
             $query->where('working_with', $request->working_with);
         }
         if ($request->blood_group != '' || $request->blood_group != null) {
             $query->where('blood_group', $request->blood_group);
         }
-
         if ($request->on_behalf != '' || $request->on_behalf != null) {
             $query->where('on_behalf', $request->on_behalf);
         }
@@ -489,6 +478,26 @@ public function getNewProfiles(Request $request)
             200,
         ]);
     }
+    public function profileImageStore(Request $request)
+    {
+        if ($request->hasfile('image')) {
+
+            $imageName = $request->user_id . '-Profile-' . time() . '.' . $request->image->extension();
+            $path = 'images\\' . $imageName;
+
+            $request->image->move(public_path('images'), $imageName);
+
+            ProfilePicture::insert([
+                'image_name' => $imageName, 'image_path' => $path, 'user_id' => Auth::user()->id
+            ]);
+
+        }
+        $data = ProfilePicture::where('user_id', $request->user_id)->get();
+        return response()->json(
+             $data,
+            200
+        );
+    }
     public function deleteImage(Request $request)
     {
         ProfilePicture::where('id',$request->id)->delete();
@@ -558,10 +567,19 @@ public function getNewProfiles(Request $request)
     }
     public function contactView(Request $request)
     {
-        $authUser = Profile::where('user_id', Auth::user()->id)->with('user')->first();
-        $authUser->update(['view_contacts' => (((int)$authUser->profile_viewed) + 1)]);
+     
+        $user = Profile::where('user_id', $request->user_id)->with('user')->first();
+        $authUser = User::where('id', Auth::user()->id)->withCount('userPlan')->first();
+        $user->update(['view_contacts' => (((int)$user->profile_viewed) + 1)]);
 
-        return [$authUser->whatsapp_number, $authUser->user->email];
+        if($authUser->user_plan_count==0){
+            return ['msg'=>'Plan not selected','msg_status'=>true];
+
+        }else{
+            return [$user->whatsapp_number, $user->user->email,'msg_status'=>false];
+        }
+
+     
     }
     public function profileStat(Request $request)
     {
@@ -930,7 +948,7 @@ public function getNewProfiles(Request $request)
             'request updated'
         ],200);
     }
-    public function requesList()
+    public function requestList()
     {
         $data = UserFriend::where('receiver_id',Auth::user()->id)->where('status','Pending')->get();
         return response()->json($data,200);
@@ -943,6 +961,26 @@ public function getNewProfiles(Request $request)
             'request deleted'
         ],200);
     }
+    public function allSentFriendRequestList()
+    {
+        $users = Profile::whereHas('user',function($query){
+            $query->whereHas('friendRequest',function($query){
+                $query->where('sender_id',Auth::user()->id);
+            });
+        })->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('state')->with('userSubscription')->get();
 
+        return response()->json($users,200);
 
+    }
+    public function allRecievedFriendRequestList()
+    {
+        $users = Profile::whereHas('user',function($query){
+            $query->whereHas('friendRequest',function($query){
+                $query->where('receiver_id',Auth::user()->id);
+            });
+        })->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('state')->with('userSubscription')->get();
+
+        return response()->json($users,200);
+
+    }
 }
