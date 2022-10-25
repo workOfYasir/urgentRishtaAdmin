@@ -139,7 +139,7 @@ public function getNewProfiles(Request $request)
 
     $auth_user = Profile::where('user_id', Auth::user()->id)->first();
 
-    $query = Profile::where('gender', $auth_user->gender == 'Male' ? 'Female' : 'Male')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('userSubscription');
+    $query = Profile::where('gender', $auth_user->gender == 'Male' ? 'Female' : 'Male')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('state')->with('cast')->with('userSubscription');
     $qualification = Profile::whereNotNull('qualification')->pluck('qualification');
 
     $income_minimum = 0;
@@ -235,7 +235,7 @@ public function getNewProfiles(Request $request)
 
         $auth_user = Profile::where('user_id', Auth::user()->id)->first();
 
-        $query = Profile::where('gender', $auth_user->gender == 'Male' ? 'Female' : 'Male')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('state')->with('userSubscription');
+        $query = Profile::where('gender', $auth_user->gender == 'Male' ? 'Female' : 'Male')->with('state')->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('state')->with('userSubscription');
 
         $qualification = Profile::whereNotNull('qualification')->pluck('qualification');
 
@@ -847,7 +847,7 @@ public function getNewProfiles(Request $request)
      
         }
         if(@$request->living_with_family != '' || @$request->living_with_family !=null){
-       $request->living_with_family;
+            
             $query->where('living_with_family', @$request->living_with_family);
         }
         if ($request->has('income')) {
@@ -942,8 +942,8 @@ public function getNewProfiles(Request $request)
     {
 
         $user_id = Auth::user()->id;
-       $data = UserFriend::where('sender_id',$request->sender_id)->where('receiver_id',$user_id)->first();
-       $data->update(['status'=>$request->status]);
+        $data = UserFriend::where('sender_id',$request->sender_id)->where('receiver_id',$user_id)->first();
+        $data->update(['status'=>$request->status]);
         return response()->json([
             'request updated'
         ],200);
@@ -975,7 +975,7 @@ public function getNewProfiles(Request $request)
     public function allRecievedFriendRequestList()
     {
         $users = Profile::whereHas('user',function($query){
-            $query->whereHas('friendRequest',function($query){
+            $query->whereHas('senderFriendRequest',function($query){
                 $query->where('receiver_id',Auth::user()->id);
             });
         })->with('user')->with('country')->with('sector')->with('city')->with('religion')->with('cast')->with('state')->with('userSubscription')->get();
@@ -984,3 +984,5 @@ public function getNewProfiles(Request $request)
 
     }
 }
+
+   

@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
-use Socialite;
 use Auth;
 use App\User;
+use Socialite;
+use App\Models\Profile;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 
 class LoginController extends Controller
@@ -36,7 +37,6 @@ class LoginController extends Controller
     protected function redirectTo(){
 
         $user =auth()->user()->roles->pluck('name');
-        
 
         if ($user=='administrator') {
          
@@ -56,12 +56,11 @@ class LoginController extends Controller
      */
     public function __construct()
     {
-        // dd( $user = Auth::user());
         $this->middleware('guest', ['except' => 'logout']);
     }
+    
     public function loginApi(Request $request){ 
         $validator = Validator::make($request->all(), [ 
-            
             'email' => 'required|email', 
             'password' => 'required', 
         ]);
@@ -70,10 +69,11 @@ class LoginController extends Controller
         }
         if(Auth::attempt(['email' => request('email'), 'password' => request('password')])){ 
             $user = Auth::user(); 
-            
+            $gender = Profile::where('id',$user->id)->pluck('gender')->first();
             $token =  $user->createToken('MyApp')-> accessToken; 
-            // $success['role']= $user->roles->pluck('name');
-            return response()->json(['token' => $token,'user'=>$user]); 
+       
+            $success['role']= $user->roles->pluck('name');
+            return response()->json(['token' => $token,'user'=>$user,'gender'=>$gender]); 
         } 
         else{ 
             return response()->json(['error'=>'Unauthorised'], 401); 

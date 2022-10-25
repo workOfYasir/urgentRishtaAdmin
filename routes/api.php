@@ -1,7 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Models\Cast;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => '/v1', 'namespace' => 'Api\V1', 'as' => 'api.'], function () {
 
@@ -124,6 +125,108 @@ Route::post('/get-partner-matches','ProfileController@getPartnerMatch');
 Route::post('/image-store','ProfileController@imageStore');
 Route::post('/image-delete','ProfileController@deleteImage');
 
+Route::get('cast-add',function(){
+    $data =[
+        ['name'=>'Arain'],
+        ['name'=>'Abbasi'],
+        ['name'=>'Ansari'],
+        ['name'=>'Awan'],
+        ['name'=>'Bahmani'],
+        ['name'=>'Bajwa'],
+        ['name'=>'Basra'],
+        ['name'=>'Baig'],
+        ['name'=>'Bhati'],
+        ['name'=>'Barsar'],
+        ['name'=>'Bloch'],
+        ['name'=>'Buttar'],
+        ['name'=>'Chaudhry'],
+        ['name'=>'Chatha'],
+        ['name'=>'Chauhan'],
+        ['name'=>'Chughtai'],
+        ['name'=>'Derawal'],
+        ['name'=>'Dhariwal'],
+        ['name'=>'Dhillon'],
+        ['name'=>'Dogar'],
+        ['name'=>'Duggal'],
+        ['name'=>'Farooqi'],
+        ['name'=>'Gakhar'],
+        ['name'=>'Gill'],
+        ['name'=>'Gujjar'],
+        ['name'=>'Hashmi'],
+        ['name'=>'Hyderabadi'],
+        ['name'=>'Janjua'],
+        ['name'=>'Jutt'],
+        ['name'=>'Johiya'],
+        ['name'=>'Kathia'],
+        ['name'=>'Kahloon'],
+        ['name'=>'Khan Punjabi'],
+        ['name'=>'Kharal'],
+        ['name'=>'Kayani '],
+        ['name'=>'Khokhar'],
+        ['name'=>'Kamboh'],
+        ['name'=>'Kirmani'],
+        ['name'=>'Khawaja'],
+        ['name'=>'Khilji'],
+        ['name'=>'Langrial'],
+        ['name'=>'Lodhi'],
+        ['name'=>'Machi'],
+        ['name'=>'Mahar'],
+        ['name'=>'Memon'],
+        ['name'=>'Makhdoom'],
+        ['name'=>'Malik Awan'],
+        ['name'=>'Malik Teli'],
+        ['name'=>'Malik KakkaZai '],
+        ['name'=>'Meo'],
+        ['name'=>'Mirza'],
+        ['name'=>'Mian'],
+        ['name'=>'Minhas'],
+        ['name'=>'Mughal'],
+        ['name'=>'Rajput Local'],
+        ['name'=>'Rajput Migrated '],
+        ['name'=>'Rajput Bhatti'],
+        ['name'=>'Rehmani '],
+        ['name'=>'Naqvi'],
+        ['name'=>'Paracha'],
+        ['name'=>'Pathan Pashto speaking '],
+        ['name'=>'Sheikh (Punjabi)'],
+        ['name'=>'Qureshi'],
+        ['name'=>'Raja Hajam'],
+        ['name'=>'Ranjha'],
+        ['name'=>'Raye'],
+        ['name'=>'Sangha'],
+        ['name'=>'Sanghera'],
+        ['name'=>'Satti'],
+        ['name'=>'sehgal'],
+        ['name'=>'sukhera'],
+        ['name'=>'Sethi'],
+        ['name'=>'Sangha'],
+        ['name'=>'sheikh Punjabi '],
+        ['name'=>'Sheikh Urdu speaking '],
+        ['name'=>'Sial'],
+        ['name'=>'Siddiqui'],
+        ['name'=>'Singh'],
+        ['name'=>'Sidhi '],
+        ['name'=>'Sindu '],
+        ['name'=>'Sandhu'],
+        ['name'=>'Shah'],
+        ['name'=>'Syed'],
+        ['name'=>'Tiwana '],
+        ['name'=>'Tarar'],
+        ['name'=>'Urdu speaking '],
+        ['name'=>'Virk'],
+        ['name'=>'Warraich'],
+        ['name'=>'Butt'],
+        ['name'=>'Dar'],
+        ['name'=>'Kashmiri '],
+        ['name'=>'Khan  Urdu speaking'],
+        ['name'=>'Lone'],
+        ['name'=>'Mir'],
+        ['name'=>'Wayne'],
+        ['name'=>'Other']
+    ];
+    // return $data;
+Cast::insert($data);
+});
 
 
 

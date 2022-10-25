@@ -72,4 +72,9 @@ class User extends Authenticatable
         return $this->belongsTo(UserFriend::class,'id','receiver_id')->with('receiver')->with('sender');
     }
 
+    public function senderFriendRequest()
+    {
+        return $this->belongsTo(UserFriend::class,'id','sender_id')->with('receiver')->with('sender');
+    }
+
 }
